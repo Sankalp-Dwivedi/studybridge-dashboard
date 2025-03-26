@@ -1,12 +1,22 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { testsAndExams } from '@/data/mockData';
+import { testData } from '@/data/testData';
 import StudentHeader from '@/components/StudentHeader';
 import { Calendar, Clock, FileText, Shield, AlertTriangle } from 'lucide-react';
+import TestWindow from '@/components/TestWindow';
+import TestResults from '@/components/TestResults';
+import { useToast } from '@/hooks/use-toast';
 
 const Tests: React.FC = () => {
+  const [activeTest, setActiveTest] = useState<any | null>(null);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [testScore, setTestScore] = useState<number>(0);
+  const [testAnswers, setTestAnswers] = useState<Record<number, any>>({});
+  const { toast } = useToast();
+
   // Filter tests by upcoming (future date)
   const upcomingTests = testsAndExams.filter(test => 
     new Date(test.date) > new Date()
@@ -52,6 +62,68 @@ const Tests: React.FC = () => {
     },
   ];
 
+  // Function to start a test
+  const startTest = (testId: number) => {
+    const test = testData.find(t => t.id === testId);
+    if (test) {
+      setActiveTest(test);
+      // Add analytics or tracking logic here if needed
+      toast({
+        title: "Test Started",
+        description: `You are now taking: ${test.title}`,
+      });
+    }
+  };
+
+  // Function to close the test
+  const closeTest = () => {
+    if (window.confirm("Are you sure you want to exit this test? Your progress will be lost.")) {
+      setActiveTest(null);
+      setShowResults(false);
+    }
+  };
+
+  // Function to handle test completion
+  const handleTestComplete = (score: number, answers: Record<number, any>) => {
+    setTestScore(score);
+    setTestAnswers(answers);
+    setShowResults(true);
+    setActiveTest(null);
+    toast({
+      title: "Test Completed",
+      description: `Your score: ${score}%`,
+      variant: score >= 70 ? "default" : "destructive",
+    });
+  };
+
+  // Function to close results and go back to tests
+  const closeResults = () => {
+    setShowResults(false);
+  };
+
+  // If there's an active test, show the test window
+  if (activeTest) {
+    return (
+      <TestWindow 
+        test={activeTest} 
+        onClose={closeTest} 
+        onComplete={handleTestComplete} 
+      />
+    );
+  }
+
+  // If showing results, render the TestResults component
+  if (showResults) {
+    return (
+      <TestResults 
+        test={testData[0]} // Replace with the actual test that was taken
+        score={testScore}
+        answers={testAnswers}
+        onClose={closeResults}
+      />
+    );
+  }
+
   return (
     <div className="space-y-8">
       <StudentHeader 
@@ -73,7 +145,7 @@ const Tests: React.FC = () => {
         
         <TabsContent value="upcoming" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {upcomingTests.slice(0, 2).map((test) => (
+            {testData.map((test) => (
               <Card key={test.id} className="overflow-hidden">
                 <div className={`px-4 py-2 ${
                   test.subject === 'Mathematics' ? 'bg-blue-500' : 
@@ -102,7 +174,7 @@ const Tests: React.FC = () => {
                   {test.duration && (
                     <div className="flex items-center">
                       <Clock className="h-5 w-5 text-gray-500 mr-2" />
-                      <span className="text-sm text-gray-700">{test.duration}</span>
+                      <span className="text-sm text-gray-700">{test.duration} minutes</span>
                     </div>
                   )}
                   
@@ -122,9 +194,12 @@ const Tests: React.FC = () => {
                   )}
                   
                   <div className="pt-2">
-                    <button className="btn-primary w-full flex items-center justify-center">
+                    <button 
+                      className="btn-primary w-full flex items-center justify-center"
+                      onClick={() => startTest(test.id)}
+                    >
                       <FileText className="mr-2 h-4 w-4" />
-                      View Test Details
+                      Start Test
                     </button>
                   </div>
                 </div>
@@ -263,7 +338,10 @@ const Tests: React.FC = () => {
                     View Details
                   </button>
                   
-                  <button className="btn-primary flex items-center justify-center">
+                  <button 
+                    className="btn-primary flex items-center justify-center"
+                    onClick={() => startTest(1)} // Used fixed ID for demo
+                  >
                     <FileText className="mr-2 h-4 w-4" />
                     Start Practice
                   </button>

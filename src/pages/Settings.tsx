@@ -1,12 +1,95 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from '@/components/ui/switch';
 import StudentHeader from '@/components/StudentHeader';
-import { Bell, Lock, Palette, Globe, Eye, EyeOff } from 'lucide-react';
+import { Bell, Lock, Palette, Globe, Eye, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAppearance } from '@/contexts/AppearanceContext';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const Settings: React.FC = () => {
+  const { theme, colorScheme, fontSize, setTheme, setColorScheme, setFontSize } = useAppearance();
+  const { toast } = useToast();
+  
+  const [notifications, setNotifications] = useState({
+    assignmentReminders: true,
+    examNotifications: true,
+    courseUpdates: true,
+    gradeNotifications: true,
+    pushEnabled: true,
+    assignmentDueAlerts: true,
+    classReminders: true
+  });
+  
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactorAuth: false
+  });
+  
+  const [unsavedChanges, setUnsavedChanges] = useState({
+    notifications: false,
+    security: false,
+    appearance: false
+  });
+  
+  // Update notification settings
+  const handleNotificationChange = (setting: keyof typeof notifications) => {
+    setNotifications(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
+    setUnsavedChanges(prev => ({ ...prev, notifications: true }));
+  };
+  
+  // Save notification changes
+  const saveNotificationChanges = () => {
+    // Here you would typically save to an API
+    toast({
+      title: "Settings Saved",
+      description: "Your notification preferences have been updated."
+    });
+    setUnsavedChanges(prev => ({ ...prev, notifications: false }));
+  };
+  
+  // Update security settings
+  const handleSecurityChange = (setting: keyof typeof securitySettings) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
+    setUnsavedChanges(prev => ({ ...prev, security: true }));
+  };
+  
+  // Handle theme selection
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    setTheme(newTheme);
+    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
+  };
+  
+  // Handle color scheme selection
+  const handleColorSchemeChange = (newColorScheme: 'blue' | 'purple' | 'green' | 'orange') => {
+    setColorScheme(newColorScheme);
+    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
+  };
+  
+  // Handle font size selection
+  const handleFontSizeChange = (newFontSize: 'small' | 'medium' | 'large') => {
+    setFontSize(newFontSize);
+    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
+  };
+  
+  // Save appearance changes
+  const saveAppearanceChanges = () => {
+    // Settings are already saved via cookies in the context
+    toast({
+      title: "Appearance Updated",
+      description: "Your appearance settings have been saved."
+    });
+    setUnsavedChanges(prev => ({ ...prev, appearance: false }));
+  };
+
   return (
     <div className="space-y-8">
       <StudentHeader 
@@ -45,7 +128,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Assignment Reminders</h5>
                         <p className="text-xs text-gray-500">Receive reminders about upcoming assignments</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.assignmentReminders} 
+                        onCheckedChange={() => handleNotificationChange('assignmentReminders')}
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -53,7 +139,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Exam Notifications</h5>
                         <p className="text-xs text-gray-500">Receive notifications about upcoming exams</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.examNotifications} 
+                        onCheckedChange={() => handleNotificationChange('examNotifications')}
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -61,7 +150,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Course Updates</h5>
                         <p className="text-xs text-gray-500">Receive notifications when course material is updated</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.courseUpdates} 
+                        onCheckedChange={() => handleNotificationChange('courseUpdates')}
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -69,7 +161,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Grade Notifications</h5>
                         <p className="text-xs text-gray-500">Receive notifications when grades are posted</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.gradeNotifications} 
+                        onCheckedChange={() => handleNotificationChange('gradeNotifications')}
+                      />
                     </div>
                   </div>
                 </div>
@@ -83,7 +178,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Enable Push Notifications</h5>
                         <p className="text-xs text-gray-500">Receive notifications on your device</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.pushEnabled} 
+                        onCheckedChange={() => handleNotificationChange('pushEnabled')}
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -91,7 +189,10 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Assignment Due Alerts</h5>
                         <p className="text-xs text-gray-500">Receive alerts when assignments are due soon</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.assignmentDueAlerts} 
+                        onCheckedChange={() => handleNotificationChange('assignmentDueAlerts')}
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -99,13 +200,21 @@ const Settings: React.FC = () => {
                         <h5 className="text-sm font-medium text-gray-900">Class Reminders</h5>
                         <p className="text-xs text-gray-500">Receive reminders before scheduled classes</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={notifications.classReminders} 
+                        onCheckedChange={() => handleNotificationChange('classReminders')}
+                      />
                     </div>
                   </div>
                 </div>
                 
                 <div className="pt-4">
-                  <button className="btn-primary">Save Changes</button>
+                  <Button 
+                    onClick={saveNotificationChanges}
+                    disabled={!unsavedChanges.notifications}
+                  >
+                    Save Changes
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -173,7 +282,10 @@ const Settings: React.FC = () => {
                       <h5 className="text-sm font-medium text-gray-900">Enable Two-Factor Authentication</h5>
                       <p className="text-xs text-gray-500">Add an extra layer of security to your account</p>
                     </div>
-                    <Switch />
+                    <Switch 
+                      checked={securitySettings.twoFactorAuth}
+                      onCheckedChange={() => handleSecurityChange('twoFactorAuth')}
+                    />
                   </div>
                 </div>
                 
@@ -231,18 +343,42 @@ const Settings: React.FC = () => {
                   <h4 className="text-base font-medium text-gray-700">Theme</h4>
                   
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="border border-scholar-blue rounded-lg p-4 bg-white cursor-pointer">
-                      <div className="h-20 bg-white border border-gray-200 rounded-md mb-2"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-4 bg-white cursor-pointer",
+                        theme === 'light' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleThemeChange('light')}
+                    >
+                      <div className="h-20 bg-white border border-gray-200 rounded-md mb-2 flex items-center justify-center">
+                        {theme === 'light' && <Check size={24} className="text-scholar-blue" />}
+                      </div>
                       <p className="text-sm font-medium text-center text-gray-900">Light</p>
                     </div>
                     
-                    <div className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                      <div className="h-20 bg-gray-900 rounded-md mb-2"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-4 cursor-pointer",
+                        theme === 'dark' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleThemeChange('dark')}
+                    >
+                      <div className="h-20 bg-gray-900 rounded-md mb-2 flex items-center justify-center">
+                        {theme === 'dark' && <Check size={24} className="text-white" />}
+                      </div>
                       <p className="text-sm font-medium text-center text-gray-900">Dark</p>
                     </div>
                     
-                    <div className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                      <div className="h-20 bg-gradient-to-b from-white to-gray-900 rounded-md mb-2"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-4 cursor-pointer",
+                        theme === 'system' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleThemeChange('system')}
+                    >
+                      <div className="h-20 bg-gradient-to-b from-white to-gray-900 rounded-md mb-2 flex items-center justify-center">
+                        {theme === 'system' && <Check size={24} className="text-white" />}
+                      </div>
                       <p className="text-sm font-medium text-center text-gray-900">System</p>
                     </div>
                   </div>
@@ -252,23 +388,55 @@ const Settings: React.FC = () => {
                   <h4 className="text-base font-medium text-gray-700">Color Scheme</h4>
                   
                   <div className="grid grid-cols-4 gap-4">
-                    <div className="border border-scholar-blue rounded-lg p-2 cursor-pointer">
-                      <div className="h-10 bg-scholar-blue rounded-md"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-2 cursor-pointer",
+                        colorScheme === 'blue' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleColorSchemeChange('blue')}
+                    >
+                      <div className="h-10 bg-scholar-blue rounded-md flex items-center justify-center">
+                        {colorScheme === 'blue' && <Check size={20} className="text-white" />}
+                      </div>
                       <p className="text-xs font-medium text-center mt-2 text-gray-900">Blue</p>
                     </div>
                     
-                    <div className="border border-gray-200 rounded-lg p-2 cursor-pointer">
-                      <div className="h-10 bg-purple-600 rounded-md"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-2 cursor-pointer",
+                        colorScheme === 'purple' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleColorSchemeChange('purple')}
+                    >
+                      <div className="h-10 bg-purple-600 rounded-md flex items-center justify-center">
+                        {colorScheme === 'purple' && <Check size={20} className="text-white" />}
+                      </div>
                       <p className="text-xs font-medium text-center mt-2 text-gray-900">Purple</p>
                     </div>
                     
-                    <div className="border border-gray-200 rounded-lg p-2 cursor-pointer">
-                      <div className="h-10 bg-green-600 rounded-md"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-2 cursor-pointer",
+                        colorScheme === 'green' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleColorSchemeChange('green')}
+                    >
+                      <div className="h-10 bg-green-600 rounded-md flex items-center justify-center">
+                        {colorScheme === 'green' && <Check size={20} className="text-white" />}
+                      </div>
                       <p className="text-xs font-medium text-center mt-2 text-gray-900">Green</p>
                     </div>
                     
-                    <div className="border border-gray-200 rounded-lg p-2 cursor-pointer">
-                      <div className="h-10 bg-orange-500 rounded-md"></div>
+                    <div 
+                      className={cn(
+                        "border rounded-lg p-2 cursor-pointer",
+                        colorScheme === 'orange' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleColorSchemeChange('orange')}
+                    >
+                      <div className="h-10 bg-orange-500 rounded-md flex items-center justify-center">
+                        {colorScheme === 'orange' && <Check size={20} className="text-white" />}
+                      </div>
                       <p className="text-xs font-medium text-center mt-2 text-gray-900">Orange</p>
                     </div>
                   </div>
@@ -278,20 +446,49 @@ const Settings: React.FC = () => {
                   <h4 className="text-base font-medium text-gray-700">Font Size</h4>
                   
                   <div className="flex items-center space-x-4">
-                    <button className="px-4 py-2 text-xs border border-gray-200 rounded-md">
+                    <button 
+                      className={cn(
+                        "px-4 py-2 text-xs rounded-md",
+                        fontSize === 'small' 
+                          ? "bg-scholar-blue text-white" 
+                          : "border border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleFontSizeChange('small')}
+                    >
                       Small
                     </button>
-                    <button className="px-4 py-2 text-sm bg-scholar-blue text-white rounded-md">
+                    <button 
+                      className={cn(
+                        "px-4 py-2 text-sm rounded-md",
+                        fontSize === 'medium' 
+                          ? "bg-scholar-blue text-white" 
+                          : "border border-gray-200 hover:border-gray-300" 
+                      )}
+                      onClick={() => handleFontSizeChange('medium')}
+                    >
                       Medium
                     </button>
-                    <button className="px-4 py-2 text-base border border-gray-200 rounded-md">
+                    <button 
+                      className={cn(
+                        "px-4 py-2 text-base rounded-md",
+                        fontSize === 'large' 
+                          ? "bg-scholar-blue text-white" 
+                          : "border border-gray-200 hover:border-gray-300"
+                      )}
+                      onClick={() => handleFontSizeChange('large')}
+                    >
                       Large
                     </button>
                   </div>
                 </div>
                 
                 <div className="pt-4">
-                  <button className="btn-primary">Save Changes</button>
+                  <Button 
+                    onClick={saveAppearanceChanges}
+                    disabled={!unsavedChanges.appearance}
+                  >
+                    Save Changes
+                  </Button>
                 </div>
               </div>
             </Card>
