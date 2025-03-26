@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { testsAndExams } from '@/data/mockData';
 import { testData } from '@/data/testData';
 import StudentHeader from '@/components/StudentHeader';
 import { Calendar, Clock, FileText, Shield, AlertTriangle } from 'lucide-react';
@@ -15,14 +14,15 @@ const Tests: React.FC = () => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [testScore, setTestScore] = useState<number>(0);
   const [testAnswers, setTestAnswers] = useState<Record<number, any>>({});
+  const [activeTestId, setActiveTestId] = useState<number>(0);
   const { toast } = useToast();
 
   // Filter tests by upcoming (future date)
-  const upcomingTests = testsAndExams.filter(test => 
+  const upcomingTests = testData.filter(test => 
     new Date(test.date) > new Date()
   );
   
-  // Mocked completed tests (we would have this in real data)
+  // Mocked completed tests
   const completedTests = [
     {
       id: 101,
@@ -67,6 +67,7 @@ const Tests: React.FC = () => {
     const test = testData.find(t => t.id === testId);
     if (test) {
       setActiveTest(test);
+      setActiveTestId(testId);
       // Add analytics or tracking logic here if needed
       toast({
         title: "Test Started",
@@ -101,6 +102,30 @@ const Tests: React.FC = () => {
     setShowResults(false);
   };
 
+  // Function to view a completed test's results
+  const viewTestResults = (testId: number) => {
+    const testIndex = testId === 101 ? 0 : 1; // Just for demo purposes
+    setActiveTestId(testIndex);
+    setTestScore(completedTests[testIndex - 101].score);
+    
+    // Create mock answers for demonstration
+    const mockAnswers: Record<number, any> = {};
+    testData[0].questions.forEach((q, idx) => {
+      if (q.type === 'mcq') {
+        mockAnswers[q.id] = q.correctAnswer;
+      } else if (q.type === 'truefalse') {
+        mockAnswers[q.id] = q.correctAnswer;
+      } else if (q.type === 'shortanswer') {
+        mockAnswers[q.id] = q.correctAnswer;
+      } else {
+        mockAnswers[q.id] = "This is a sample descriptive answer provided by the student.";
+      }
+    });
+    
+    setTestAnswers(mockAnswers);
+    setShowResults(true);
+  };
+
   // If there's an active test, show the test window
   if (activeTest) {
     return (
@@ -114,9 +139,10 @@ const Tests: React.FC = () => {
 
   // If showing results, render the TestResults component
   if (showResults) {
+    const testToShow = testData.find(t => t.id === activeTestId) || testData[0];
     return (
       <TestResults 
-        test={testData[0]} // Replace with the actual test that was taken
+        test={testToShow}
         score={testScore}
         answers={testAnswers}
         onClose={closeResults}
@@ -195,7 +221,7 @@ const Tests: React.FC = () => {
                   
                   <div className="pt-2">
                     <button 
-                      className="btn-primary w-full flex items-center justify-center"
+                      className="px-4 py-2 bg-scholar-blue text-white rounded-md hover:bg-scholar-blue/90 w-full flex items-center justify-center"
                       onClick={() => startTest(test.id)}
                     >
                       <FileText className="mr-2 h-4 w-4" />
@@ -287,12 +313,18 @@ const Tests: React.FC = () => {
                   </div>
                   
                   <div className="pt-2 grid grid-cols-2 gap-3">
-                    <button className="btn-secondary flex items-center justify-center">
+                    <button 
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center justify-center"
+                      onClick={() => viewTestResults(test.id)}
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       View Results
                     </button>
                     
-                    <button className="btn-primary flex items-center justify-center">
+                    <button 
+                      className="px-4 py-2 bg-scholar-blue text-white rounded-md hover:bg-scholar-blue/90 flex items-center justify-center"
+                      onClick={() => viewTestResults(test.id)}
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Review Answers
                     </button>
@@ -333,14 +365,14 @@ const Tests: React.FC = () => {
                 </div>
                 
                 <div className="mt-6 grid grid-cols-2 gap-3">
-                  <button className="btn-secondary flex items-center justify-center">
+                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center justify-center">
                     <FileText className="mr-2 h-4 w-4" />
                     View Details
                   </button>
                   
                   <button 
-                    className="btn-primary flex items-center justify-center"
-                    onClick={() => startTest(1)} // Used fixed ID for demo
+                    className="px-4 py-2 bg-scholar-blue text-white rounded-md hover:bg-scholar-blue/90 flex items-center justify-center"
+                    onClick={() => startTest(1)} // Start first test for demo
                   >
                     <FileText className="mr-2 h-4 w-4" />
                     Start Practice

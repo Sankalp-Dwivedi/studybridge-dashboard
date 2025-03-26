@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { setCookie, getCookie } from '@/utils/cookies';
+import { useToast } from '@/hooks/use-toast';
 
 type ThemeType = 'light' | 'dark' | 'system';
 type ColorScheme = 'blue' | 'purple' | 'green' | 'orange';
@@ -13,6 +14,7 @@ interface AppearanceContextType {
   setTheme: (theme: ThemeType) => void;
   setColorScheme: (colorScheme: ColorScheme) => void;
   setFontSize: (fontSize: FontSize) => void;
+  saveAppearanceSettings: () => void;
 }
 
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
@@ -21,6 +23,7 @@ export const AppearanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [theme, setThemeState] = useState<ThemeType>('light');
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>('blue');
   const [fontSize, setFontSizeState] = useState<FontSize>('medium');
+  const { toast } = useToast();
 
   // Load settings from cookies on initial render
   useEffect(() => {
@@ -52,6 +55,34 @@ export const AppearanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Apply color scheme
   useEffect(() => {
     document.body.dataset.colorScheme = colorScheme;
+    
+    // Apply color scheme to CSS variables
+    const root = document.documentElement;
+    
+    // Reset previous color scheme classes
+    root.classList.remove('color-blue', 'color-purple', 'color-green', 'color-orange');
+    
+    // Add new color scheme class
+    root.classList.add(`color-${colorScheme}`);
+    
+    // Add custom colors to the root element
+    if (colorScheme === 'blue') {
+      root.style.setProperty('--scholar-primary', '#3b82f6');
+      root.style.setProperty('--scholar-secondary', '#60a5fa');
+      root.style.setProperty('--scholar-accent', '#2563eb');
+    } else if (colorScheme === 'purple') {
+      root.style.setProperty('--scholar-primary', '#8b5cf6');
+      root.style.setProperty('--scholar-secondary', '#a78bfa');
+      root.style.setProperty('--scholar-accent', '#7c3aed');
+    } else if (colorScheme === 'green') {
+      root.style.setProperty('--scholar-primary', '#10b981');
+      root.style.setProperty('--scholar-secondary', '#34d399');
+      root.style.setProperty('--scholar-accent', '#059669');
+    } else if (colorScheme === 'orange') {
+      root.style.setProperty('--scholar-primary', '#f97316');
+      root.style.setProperty('--scholar-secondary', '#fb923c');
+      root.style.setProperty('--scholar-accent', '#ea580c');
+    }
   }, [colorScheme]);
 
   // Apply font size
@@ -81,6 +112,14 @@ export const AppearanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setFontSizeState(newFontSize);
     setCookie('scholar-font-size', newFontSize);
   };
+  
+  const saveAppearanceSettings = () => {
+    // Settings are already saved via cookies when setting individual values
+    toast({
+      title: "Appearance Updated",
+      description: "Your appearance settings have been saved."
+    });
+  };
 
   const value = {
     theme,
@@ -88,7 +127,8 @@ export const AppearanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     fontSize,
     setTheme,
     setColorScheme,
-    setFontSize
+    setFontSize,
+    saveAppearanceSettings
   };
 
   return (

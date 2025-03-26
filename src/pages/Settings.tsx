@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const Settings: React.FC = () => {
-  const { theme, colorScheme, fontSize, setTheme, setColorScheme, setFontSize } = useAppearance();
+  const { theme, colorScheme, fontSize, setTheme, setColorScheme, setFontSize, saveAppearanceSettings } = useAppearance();
   const { toast } = useToast();
   
   const [notifications, setNotifications] = useState({
@@ -30,8 +29,7 @@ const Settings: React.FC = () => {
   
   const [unsavedChanges, setUnsavedChanges] = useState({
     notifications: false,
-    security: false,
-    appearance: false
+    security: false
   });
   
   // Update notification settings
@@ -60,34 +58,6 @@ const Settings: React.FC = () => {
       [setting]: !prev[setting]
     }));
     setUnsavedChanges(prev => ({ ...prev, security: true }));
-  };
-  
-  // Handle theme selection
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
-    setTheme(newTheme);
-    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
-  };
-  
-  // Handle color scheme selection
-  const handleColorSchemeChange = (newColorScheme: 'blue' | 'purple' | 'green' | 'orange') => {
-    setColorScheme(newColorScheme);
-    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
-  };
-  
-  // Handle font size selection
-  const handleFontSizeChange = (newFontSize: 'small' | 'medium' | 'large') => {
-    setFontSize(newFontSize);
-    setUnsavedChanges(prev => ({ ...prev, appearance: true }));
-  };
-  
-  // Save appearance changes
-  const saveAppearanceChanges = () => {
-    // Settings are already saved via cookies in the context
-    toast({
-      title: "Appearance Updated",
-      description: "Your appearance settings have been saved."
-    });
-    setUnsavedChanges(prev => ({ ...prev, appearance: false }));
   };
 
   return (
@@ -220,7 +190,7 @@ const Settings: React.FC = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="security" className="space-y-6">
+          <TabsContent value="security">
             <Card className="p-6">
               <div className="space-y-6">
                 <div>
@@ -335,7 +305,7 @@ const Settings: React.FC = () => {
                     Appearance Settings
                   </h3>
                   <p className="text-gray-500 text-sm mb-6">
-                    Customize how your dashboard looks.
+                    Customize how your dashboard looks. Changes are saved automatically.
                   </p>
                 </div>
                 
@@ -346,9 +316,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-4 bg-white cursor-pointer",
-                        theme === 'light' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        theme === 'light' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleThemeChange('light')}
+                      onClick={() => setTheme('light')}
                     >
                       <div className="h-20 bg-white border border-gray-200 rounded-md mb-2 flex items-center justify-center">
                         {theme === 'light' && <Check size={24} className="text-scholar-blue" />}
@@ -359,9 +329,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-4 cursor-pointer",
-                        theme === 'dark' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        theme === 'dark' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleThemeChange('dark')}
+                      onClick={() => setTheme('dark')}
                     >
                       <div className="h-20 bg-gray-900 rounded-md mb-2 flex items-center justify-center">
                         {theme === 'dark' && <Check size={24} className="text-white" />}
@@ -372,9 +342,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-4 cursor-pointer",
-                        theme === 'system' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        theme === 'system' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleThemeChange('system')}
+                      onClick={() => setTheme('system')}
                     >
                       <div className="h-20 bg-gradient-to-b from-white to-gray-900 rounded-md mb-2 flex items-center justify-center">
                         {theme === 'system' && <Check size={24} className="text-white" />}
@@ -391,11 +361,11 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-2 cursor-pointer",
-                        colorScheme === 'blue' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        colorScheme === 'blue' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleColorSchemeChange('blue')}
+                      onClick={() => setColorScheme('blue')}
                     >
-                      <div className="h-10 bg-scholar-blue rounded-md flex items-center justify-center">
+                      <div className="h-10 bg-blue-500 rounded-md flex items-center justify-center">
                         {colorScheme === 'blue' && <Check size={20} className="text-white" />}
                       </div>
                       <p className="text-xs font-medium text-center mt-2 text-gray-900">Blue</p>
@@ -404,9 +374,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-2 cursor-pointer",
-                        colorScheme === 'purple' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        colorScheme === 'purple' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleColorSchemeChange('purple')}
+                      onClick={() => setColorScheme('purple')}
                     >
                       <div className="h-10 bg-purple-600 rounded-md flex items-center justify-center">
                         {colorScheme === 'purple' && <Check size={20} className="text-white" />}
@@ -417,9 +387,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-2 cursor-pointer",
-                        colorScheme === 'green' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        colorScheme === 'green' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleColorSchemeChange('green')}
+                      onClick={() => setColorScheme('green')}
                     >
                       <div className="h-10 bg-green-600 rounded-md flex items-center justify-center">
                         {colorScheme === 'green' && <Check size={20} className="text-white" />}
@@ -430,9 +400,9 @@ const Settings: React.FC = () => {
                     <div 
                       className={cn(
                         "border rounded-lg p-2 cursor-pointer",
-                        colorScheme === 'orange' ? "border-scholar-blue" : "border-gray-200 hover:border-gray-300"
+                        colorScheme === 'orange' ? "border-scholar-blue ring-2 ring-scholar-blue ring-opacity-50" : "border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleColorSchemeChange('orange')}
+                      onClick={() => setColorScheme('orange')}
                     >
                       <div className="h-10 bg-orange-500 rounded-md flex items-center justify-center">
                         {colorScheme === 'orange' && <Check size={20} className="text-white" />}
@@ -453,7 +423,7 @@ const Settings: React.FC = () => {
                           ? "bg-scholar-blue text-white" 
                           : "border border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleFontSizeChange('small')}
+                      onClick={() => setFontSize('small')}
                     >
                       Small
                     </button>
@@ -464,7 +434,7 @@ const Settings: React.FC = () => {
                           ? "bg-scholar-blue text-white" 
                           : "border border-gray-200 hover:border-gray-300" 
                       )}
-                      onClick={() => handleFontSizeChange('medium')}
+                      onClick={() => setFontSize('medium')}
                     >
                       Medium
                     </button>
@@ -475,7 +445,7 @@ const Settings: React.FC = () => {
                           ? "bg-scholar-blue text-white" 
                           : "border border-gray-200 hover:border-gray-300"
                       )}
-                      onClick={() => handleFontSizeChange('large')}
+                      onClick={() => setFontSize('large')}
                     >
                       Large
                     </button>
@@ -484,17 +454,16 @@ const Settings: React.FC = () => {
                 
                 <div className="pt-4">
                   <Button 
-                    onClick={saveAppearanceChanges}
-                    disabled={!unsavedChanges.appearance}
+                    onClick={saveAppearanceSettings}
                   >
-                    Save Changes
+                    Apply Changes
                   </Button>
                 </div>
               </div>
             </Card>
           </TabsContent>
           
-          <TabsContent value="accessibility" className="space-y-6">
+          <TabsContent value="accessibility">
             <Card className="p-6">
               <div className="space-y-6">
                 <div>

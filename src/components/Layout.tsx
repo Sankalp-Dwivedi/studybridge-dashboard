@@ -9,12 +9,19 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { colorScheme } = useAppearance();
+  const { colorScheme, theme } = useAppearance();
   
   // Apply color scheme class to the main container
   useEffect(() => {
-    // This creates dynamic styling based on the selected color scheme
-  }, [colorScheme]);
+    const body = document.body;
+    
+    // Set color scheme data attribute
+    body.dataset.colorScheme = colorScheme;
+    
+    // Set theme data attribute
+    body.dataset.theme = theme;
+    
+  }, [colorScheme, theme]);
   
   return (
     <div className={`flex h-screen bg-scholar-background overflow-hidden color-scheme-${colorScheme}`}>

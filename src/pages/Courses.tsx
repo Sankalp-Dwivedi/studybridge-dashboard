@@ -1,161 +1,160 @@
-
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { 
-  allCourses, 
-  courseCategories, 
-  courseLevels 
-} from '@/data/mockData';
-import CourseCard from '@/components/CourseCard';
+import React from 'react';
 import StudentHeader from '@/components/StudentHeader';
-import { BookOpen, Search, SlidersHorizontal } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CourseCard from '@/components/CourseCard';
 
 const Courses: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [selectedLevel, setSelectedLevel] = useState('All Levels');
-
-  const filteredCourses = allCourses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All Categories' || course.category === selectedCategory;
-    const matchesLevel = selectedLevel === 'All Levels' || course.level === selectedLevel;
-    
-    return matchesSearch && matchesCategory && matchesLevel;
-  });
-
-  const myCourses = allCourses.filter(course => course.status === 'in-progress');
-  const recommendedCourses = allCourses.filter((_, index) => index % 2 === 0); // Just for demo purposes
+  
 
   return (
     <div className="space-y-8">
       <StudentHeader 
-        title="Courses"
-        subtitle="Discover and enroll in a wide range of educational content"
+        title="My Courses" 
+        subtitle="View and manage your enrolled courses"
       />
-
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-scholar-blue focus:border-transparent w-full"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <button className="btn-primary flex items-center space-x-2">
-          <BookOpen size={18} />
-          <span>View Curriculum</span>
-        </button>
-      </div>
-
-      <Tabs defaultValue="all-courses" className="space-y-6">
-        <TabsList className="grid w-full md:w-[400px] grid-cols-3">
-          <TabsTrigger value="all-courses">All Courses</TabsTrigger>
-          <TabsTrigger value="my-courses">My Courses</TabsTrigger>
-          <TabsTrigger value="recommended">Recommended</TabsTrigger>
+      
+      <Tabs defaultValue="all" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="all">All Courses</TabsTrigger>
+          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
-
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-          <select
-            className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-scholar-blue focus:border-transparent"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {courseCategories.map((category, index) => (
-              <option key={index} value={category}>{category}</option>
-            ))}
-          </select>
-          
-          <select
-            className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-scholar-blue focus:border-transparent"
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
-          >
-            {courseLevels.map((level, index) => (
-              <option key={index} value={level}>{level}</option>
-            ))}
-          </select>
-          
-          <button className="btn-secondary flex items-center space-x-2">
-            <SlidersHorizontal size={18} />
-            <span>More Filters</span>
-          </button>
-        </div>
-
-        <TabsContent value="all-courses" className="space-y-6">
+        
+        <TabsContent value="all" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <CourseCard 
-                key={course.id}
-                id={course.id}
-                title={course.title}
-                instructor={course.instructor}
-                progress={course.progress}
-                image={course.image}
-                category={course.category}
-                level={course.level}
-                students={course.students}
-                duration={course.duration}
-                description={course.description}
-                variant="full"
-                status={course.status}
-              />
-            ))}
+            {/* Mathematics Course */}
+            <CourseCard
+              title="Calculus I"
+              description="Introduction to differential and integral calculus"
+              progress={65}
+              instructor="Dr. Robert Chen"
+              department="Mathematics"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={12}
+              completedChapters={8}
+              route="/course/1"
+            />
+            
+            {/* Physics Course */}
+            <CourseCard
+              title="Classical Mechanics"
+              description="Fundamentals of Newtonian mechanics and applications"
+              progress={30}
+              instructor="Dr. Sarah Johnson"
+              department="Physics"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={10}
+              completedChapters={3}
+              route="/course/2"
+            />
+            
+            {/* Chemistry Course */}
+            <CourseCard
+              title="Organic Chemistry"
+              description="Structure, properties, and reactions of organic compounds"
+              progress={100}
+              instructor="Dr. Michael Lee"
+              department="Chemistry"
+              image="/placeholder.svg"
+              status="completed"
+              chapters={15}
+              completedChapters={15}
+              route="/course/3"
+            />
+            
+            {/* Computer Science Course */}
+            <CourseCard
+              title="Data Structures & Algorithms"
+              description="Fundamental data structures and algorithm design"
+              progress={0}
+              instructor="Prof. Alex Rivera"
+              department="Computer Science"
+              image="/placeholder.svg"
+              status="not-started"
+              chapters={14}
+              completedChapters={0}
+              route="/course/4"
+            />
+            
+            {/* Biology Course */}
+            <CourseCard
+              title="Molecular Biology"
+              description="Study of molecular basis of biological activity"
+              progress={45}
+              instructor="Dr. Emily Carter"
+              department="Biology"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={12}
+              completedChapters={5}
+              route="/course/5"
+            />
           </div>
         </TabsContent>
-
-        <TabsContent value="my-courses" className="space-y-6">
+        
+        <TabsContent value="in-progress" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {myCourses.map((course) => (
-              <CourseCard 
-                key={course.id}
-                id={course.id}
-                title={course.title}
-                instructor={course.instructor}
-                progress={course.progress}
-                image={course.image}
-                category={course.category}
-                level={course.level}
-                students={course.students}
-                duration={course.duration}
-                description={course.description}
-                variant="full"
-                status={course.status}
-              />
-            ))}
+            {/* Mathematics Course */}
+            <CourseCard
+              title="Calculus I"
+              description="Introduction to differential and integral calculus"
+              progress={65}
+              instructor="Dr. Robert Chen"
+              department="Mathematics"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={12}
+              completedChapters={8}
+              route="/course/1"
+            />
+            
+            {/* Physics Course */}
+            <CourseCard
+              title="Classical Mechanics"
+              description="Fundamentals of Newtonian mechanics and applications"
+              progress={30}
+              instructor="Dr. Sarah Johnson"
+              department="Physics"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={10}
+              completedChapters={3}
+              route="/course/2"
+            />
+            
+            {/* Biology Course */}
+            <CourseCard
+              title="Molecular Biology"
+              description="Study of molecular basis of biological activity"
+              progress={45}
+              instructor="Dr. Emily Carter"
+              department="Biology"
+              image="/placeholder.svg"
+              status="in-progress"
+              chapters={12}
+              completedChapters={5}
+              route="/course/5"
+            />
           </div>
-
-          {myCourses.length === 0 && (
-            <Card className="p-6 text-center">
-              <p className="text-gray-500">You are not enrolled in any courses yet.</p>
-            </Card>
-          )}
         </TabsContent>
-
-        <TabsContent value="recommended" className="space-y-6">
+        
+        <TabsContent value="completed" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendedCourses.map((course) => (
-              <CourseCard 
-                key={course.id}
-                id={course.id}
-                title={course.title}
-                instructor={course.instructor}
-                progress={course.progress}
-                image={course.image}
-                category={course.category}
-                level={course.level}
-                students={course.students}
-                duration={course.duration}
-                description={course.description}
-                variant="full"
-                status={course.status}
-              />
-            ))}
+            {/* Chemistry Course */}
+            <CourseCard
+              title="Organic Chemistry"
+              description="Structure, properties, and reactions of organic compounds"
+              progress={100}
+              instructor="Dr. Michael Lee"
+              department="Chemistry"
+              image="/placeholder.svg"
+              status="completed"
+              chapters={15}
+              completedChapters={15}
+              route="/course/3"
+            />
           </div>
         </TabsContent>
       </Tabs>

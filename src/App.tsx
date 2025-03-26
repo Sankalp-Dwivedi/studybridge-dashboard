@@ -16,7 +16,14 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { AppearanceProvider } from "./contexts/AppearanceContext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
